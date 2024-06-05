@@ -1,3 +1,5 @@
+import { useCallback } from "react";
+import { memo } from "react";
 import './App.css';
 import logo from './image/airflow.svg';
 import Button from './components/Button';
@@ -5,37 +7,26 @@ import Screen from './components/Screen';
 import ButtonClear from './components/ButtonClear';
 import { useState } from 'react';
 import { evaluate } from 'mathjs';
-
-function App() {
-
+const App = memo(function App() {
   const [input, setInput] = useState('');
-
-  const addInput = val => {
-    setInput(input + val);
-  };
-
-  const calculateResult = () => {
+  const addInput = useCallback(val => {
+    setInput(inputCurrent => inputCurrent + val);
+  }, [setInput]);
+  const calculateResult = useCallback(() => {
     if (input) {
-      setInput(evaluate(input));
+      setInput(inputCurrent => evaluate(inputCurrent));
     } else {
       alert('Por favor ingrese valores para realizar los cálculos.');
     }
-    
-  };
-
-
-  return (
-    <div className="App">
+  }, [input, setInput]);
+  return <div className="App">
       <div className='logo-container'>
         <div><strong>Calculator</strong></div>
-        <img
-        src={ logo }
-        className='logo'
-        alt='logo' />
+        <img src={logo} className='logo' alt='logo' />
       </div> 
       
       <div className='container-calculator'>
-        <Screen input={input}/>
+        <Screen input={input} />
         <div className='row'>
           <Button handleClick={addInput}>1</Button>
           <Button handleClick={addInput}>2</Button>
@@ -61,13 +52,11 @@ function App() {
           <Button handleClick={addInput}>/</Button>
         </div>
         <div className='row'>
-          <ButtonClear handleClear={() => setInput('')}>
+          <ButtonClear handleClear={useCallback(() => setInput(''), [setInput])}>
             Clear
           </ButtonClear>
         </div>
       </div>
-    </div>
-  );
-}
-
+    </div>;
+});
 export default App;
